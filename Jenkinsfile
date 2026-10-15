@@ -1,62 +1,76 @@
 
-
-
 pipeline {
     agent any
 
     options {
-        disableConcurrentBuilds()
         timestamps()
+        disableConcurrentBuilds()
     }
 
     environment {
-        DOCKER_IMAGE = 'archanajawahar14/university-lms'
-        DOCKER_CREDENTIALS = 'dockerhub-jenkins'
-        KUBE_CREDENTIALS = 'kubernetes-config'
-        DEPLOYMENT_NAME = 'university-lms'
-        CONTAINER_NAME = 'university-lms'
+        IMAGE_NAME = 'archanajawahar14/university-lms'
     }
 
     stages {
-        stage('Checkout') {
+        stage('Checkout GitHub') {
             steps {
-                checkout scm
+                git branch: 'main',
+                    url: 'https://github.com/archanajawahar/university-lms-devops.git'
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 bat '''
-                    docker build -t %DOCKER_IMAGE%:v%BUILD_NUMBER% .
+                    docker build -t %IMAGE_NAME%:v%BUILD_NUMBER% .
                     if errorlevel 1 exit /b 1
                 '''
             }
         }
 
-        stage('Test Image') {
+        stage('Test Docker Image') {
             steps {
                 bat '''
-                    docker image inspect %DOCKER_IMAGE%:v%BUILD_NUMBER%
+                    docker image inspect %IMAGE_NAME%:v%BUILD_NUMBER%
                     if errorlevel 1 exit /b 1
                 '''
             }
         }
 
-        stage('Push to Docker Hub') {
+        stage('Login and Push to Docker Hub') {
             steps {
                 withCredentials([
                     usernamePassword(
-                        credentialsId: 'dockerhub-jenkins',
-                        usernameVariable: 'DOCKER_USER',
-                        passwordVariable: 'DOCKER_TOKEN'
+                        credentialsId: 'dockerhub-lms-new',
+                        usernameVariable: 'DH_USER',
+                        passwordVariable: 'DH_TOKEN'
                     )
                 ]) {
                     bat '''
                         @echo off
-                        echo %DOCKER_TOKEN% | docker login -u %DOCKER_USER% --password-stdin
+                        docker login --username "%DH_USER%" --password-stdin < nul
+                    '''
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub-lms-new',
+                        usernameVariable: 'DH_USER',
+                        passwordVariable: 'DH_TOKEN'
+                    )
+                ]) {
+                    bat '''
+                        @echo off
+                        echo %DH_TOKEN% | docker login --username "%DH_USER%" --password-stdin
                         if errorlevel 1 exit /b 1
-                        docker push %DOCKER_IMAGE%:v%BUILD_NUMBER%
+
+                        docker push %IMAGE_NAME%:v%BUILD_NUMBER%
                         if errorlevel 1 exit /b 1
+
                         docker logout
                     '''
                 }
@@ -73,13 +87,13 @@ pipeline {
                 ]) {
                     bat '''
                         @echo off
-                        kubectl --kubeconfig "%KUBECONFIG%" config current-context
+
+                        kubectl --kubeconfig "%KUBECONFIG%" set image deployment/university-lms university-lms=%IMAGE_NAME%:v%BUILD_NUMBER%
                         if errorlevel 1 exit /b 1
-                        kubectl --kubeconfig "%KUBECONFIG%" set image deployment/%DEPLOYMENT_NAME% %CONTAINER_NAME%=%DOCKER_IMAGE%:v%BUILD_NUMBER%
-                        if errorlevel 1 exit /b 1
-                        kubectl --kubeconfig "%KUBECONFIG%" rollout status deployment/%DEPLOYMENT_NAME% --timeout=120s
+
+                        kubectl --kubeconfig "%KUBECONFIG%" rollout status deployment/university-lms --timeout=120s
                         if errorlevel 1 (
-                            kubectl --kubeconfig "%KUBECONFIG%" rollout undo deployment/%DEPLOYMENT_NAME%
+                            kubectl --kubeconfig "%KUBECONFIG%" rollout undo deployment/university-lms
                             exit /b 1
                         )
                     '''
@@ -90,10 +104,10 @@ pipeline {
 
     post {
         success {
-            echo 'University LMS deployed successfully.'
+            echo 'University LMS pipeline completed successfully.'
         }
         failure {
-            echo 'Pipeline failed. Check the stage logs and Kubernetes rollout status.'
+            echo 'Pipeline failed. Check Console Output for the failed stage.'
         }
     }
 }
