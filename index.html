@@ -1,0 +1,114 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University Learning Management Portal</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f2f5fa;
+            color: #26354a;
+        }
+        header {
+            background: #173b70;
+            color: white;
+            padding: 25px 8%;
+        }
+        nav {
+            background: #24518b;
+            padding: 15px 8%;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-right: 20px;
+        }
+        main { padding: 25px 8%; }
+        .welcome, .card {
+            background: white;
+            padding: 22px;
+            border-radius: 10px;
+            margin-bottom: 18px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 18px;
+        }
+        .card h3 { color: #24518b; }
+        footer {
+            background: #173b70;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>University Learning Management Portal</h1>
+    <p>Your central place for academic information</p>
+</header>
+
+<nav>
+    <a href="#courses">Courses</a>
+    <a href="#faculty">Faculty</a>
+    <a href="#resources">Resources</a>
+    <a href="#assignments">Assignments</a>
+    <a href="#exams">Examinations</a>
+</nav>
+
+<main>
+    <section class="welcome">
+        <h2>Welcome, Students!</h2>
+        <p>Access course information, faculty profiles, learning materials,
+        assignment announcements and examination schedules.</p>
+        <strong>Application Release: v1.0 - Stable</strong>
+    </section>
+
+    <div class="grid">
+        <section class="card" id="courses">
+            <h3>Course Information</h3>
+            <p>Software Engineering</p>
+            <p>Database Management Systems</p>
+            <p>Cloud Computing</p>
+        </section>
+
+        <section class="card" id="faculty">
+            <h3>Faculty Profiles</h3>
+            <p>Dr. Priya - Software Engineering</p>
+            <p>Prof. Kumar - Database Systems</p>
+            <p>Dr. Anand - Cloud Computing</p>
+        </section>
+
+        <section class="card" id="resources">
+            <h3>Learning Resources</h3>
+            <p>Lecture Notes</p>
+            <p>Lab Manuals</p>
+            <p>Reference Materials</p>
+        </section>
+
+        <section class="card" id="assignments">
+            <h3>Assignment Announcements</h3>
+            <p>Web Technology - Submit by Friday.</p>
+            <p>Database Lab Record - Submit by Monday.</p>
+        </section>
+
+        <section class="card" id="exams">
+            <h3>Examination Schedule</h3>
+            <p>Software Engineering - 10 November</p>
+            <p>Database Systems - 13 November</p>
+            <p>Cloud Computing - 17 November</p>
+        </section>
+    </div>
+</main>
+
+<footer>
+    University LMS | Powered by Docker, Jenkins and Kubernetes
+</footer>
+</body>
+</html>
+```
