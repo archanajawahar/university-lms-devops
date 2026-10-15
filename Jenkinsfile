@@ -48,23 +48,6 @@ pipeline {
                 ]) {
                     bat '''
                         @echo off
-                        docker login --username "%DH_USER%" --password-stdin < nul
-                    '''
-                }
-            }
-        }
-
-        stage('Push Docker Image') {
-            steps {
-                withCredentials([
-                    usernamePassword(
-                        credentialsId: 'dockerhub-lms-new',
-                        usernameVariable: 'DH_USER',
-                        passwordVariable: 'DH_TOKEN'
-                    )
-                ]) {
-                    bat '''
-                        @echo off
                         echo %DH_TOKEN% | docker login --username "%DH_USER%" --password-stdin
                         if errorlevel 1 exit /b 1
 
